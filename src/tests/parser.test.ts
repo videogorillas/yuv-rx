@@ -23,5 +23,5 @@ it('parses video into frames', done => {
                 throw 'completed without emitting data';
             }
         }
-    })
-})
+    });
+});

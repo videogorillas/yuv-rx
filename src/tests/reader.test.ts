@@ -17,7 +17,7 @@ it('reads a video', done => {
             const frames = [];
             for (let i = 0; i < 6; i++) {
                 const start = header.length + 1 + i * 390;
-                const frameBuffer = buffer.subarray(start, start + 390)
+                const frameBuffer = buffer.subarray(start, start + 390);
                 frames.push({
                     header: frameBuffer.subarray(0, 6).toString(),
                     y: frameBuffer.subarray(6, 6 + 16*16),
@@ -54,5 +54,5 @@ it('reads a video', done => {
                 throw 'completed without emitting data';
             }
         }
-    })
+    });
 });

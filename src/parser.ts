@@ -11,8 +11,8 @@ function parseFrame(data: Buffer, header: Y4MHeader, frameHeader: string, fn: nu
     if (!frameHeader.startsWith('FRAME')) {
         throw 'Invalid frame header';
     }
-    let luma = header.lumaSize();
-    let chroma = header.chromaSize();
+    const luma = header.lumaSize();
+    const chroma = header.chromaSize();
     return {
         header: {
             fn: fn
@@ -22,7 +22,7 @@ function parseFrame(data: Buffer, header: Y4MHeader, frameHeader: string, fn: nu
             u: new Gray(header.chromaWidth(), header.chromaHeight(), data.subarray(luma, luma + chroma)),
             v: new Gray(header.chromaWidth(), header.chromaHeight(), data.subarray(luma + chroma))
         }
-    }
+    };
 }
 
 export class YuvParser {
@@ -49,13 +49,13 @@ export class YuvParser {
                         if (header == null) {
                             const headerString = chunk.toString('ascii');
                             if (this.options.verbose) {
-                                console.log(`Video header: ${headerString}`)
+                                console.log(`Video header: ${headerString}`);
                             }
                             header = Y4MHeader.fromString(headerString);
                         } else if (frameHeader == null) {
                             frameHeader = chunk.toString('ascii');
                             if (this.options.verbose) {
-                                console.log(`Frame ${fn} header: ${frameHeader}`)
+                                console.log(`Frame ${fn} header: ${frameHeader}`);
                             }
                         } else {
                             const frameData = chunk.subarray(0, header.getFrameSize());
@@ -63,7 +63,7 @@ export class YuvParser {
                             fn += 1;
                             frameHeader = chunk.subarray(header.getFrameSize()).toString('ascii');
                             if (this.options.verbose) {
-                                console.log(`Frame ${fn} header: ${frameHeader}`)
+                                console.log(`Frame ${fn} header: ${frameHeader}`);
                             }
                         }
                     }
@@ -77,7 +77,7 @@ export class YuvParser {
                         subscriber.error(`Incorrect size of last frame (${buffer.length}), expected ${header.getFrameSize()}`);
                     }
                 }
-            })
-        })
+            });
+        });
     }
 }

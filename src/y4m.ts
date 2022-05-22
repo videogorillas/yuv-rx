@@ -4,15 +4,15 @@ export type Interlacing = 'Progressive' | 'TopFieldFirst' | 'BottomFieldFirst' |
 
 function interlacingFromChar(char: string): Interlacing {
     switch (char) {
-        case 't':
-            return 'TopFieldFirst';
-        case 'b':
-            return 'BottomFieldFirst';
-        case 'm':
-            return 'Mixed';
-        case 'p':
-        default:
-            return 'Progressive';
+    case 't':
+        return 'TopFieldFirst';
+    case 'b':
+        return 'BottomFieldFirst';
+    case 'm':
+        return 'Mixed';
+    case 'p':
+    default:
+        return 'Progressive';
     }
 }
 
@@ -104,38 +104,38 @@ export class Y4MHeader {
             const key = s.charAt(0);
             const value = s.substring(1);
             switch (key) {
-                case 'W':
-                    header.width = parseInt(value);
-                    break;
-                case 'H':
-                    header.height = parseInt(value);
-                    break;
-                case 'F':
-                    header.frameRate = parseRational(value);
-                    header.timeScale = header.frameRate.numerator;
-                    header.videoMediaTimeScale = header.timeScale;
-                    break;
-                case 'I':
-                    header.interlacing = interlacingFromChar(s.charAt(1));
-                    break;
-                case 'A':
-                    header.aspectRatio = parseRational(value);
-                    break;
-                case 'C':
-                    header.colorspace = s as Colorspace;
-                    break;
-                case 'X':
-                    header.comment = value;
-                    const vmtsMatch = Y4MHeader.videoMediaTimeScaleRegex.exec(line);
-                    if (vmtsMatch != null) {
-                        header.videoMediaTimeScale = parseInt((vmtsMatch as TSRegExpMatchResult).groups.ts);
-                    } else {
-                        const tsMatch = Y4MHeader.timeScaleRegex.exec(line);
-                        if (tsMatch != null) {
-                            header.timeScale = parseInt((tsMatch as TSRegExpMatchResult).groups.ts);
-                        }
+            case 'W':
+                header.width = parseInt(value);
+                break;
+            case 'H':
+                header.height = parseInt(value);
+                break;
+            case 'F':
+                header.frameRate = parseRational(value);
+                header.timeScale = header.frameRate.numerator;
+                header.videoMediaTimeScale = header.timeScale;
+                break;
+            case 'I':
+                header.interlacing = interlacingFromChar(s.charAt(1));
+                break;
+            case 'A':
+                header.aspectRatio = parseRational(value);
+                break;
+            case 'C':
+                header.colorspace = s as Colorspace;
+                break;
+            case 'X':
+                header.comment = value;
+                const vmtsMatch = Y4MHeader.videoMediaTimeScaleRegex.exec(line);
+                if (vmtsMatch != null) {
+                    header.videoMediaTimeScale = parseInt((vmtsMatch as TSRegExpMatchResult).groups.ts);
+                } else {
+                    const tsMatch = Y4MHeader.timeScaleRegex.exec(line);
+                    if (tsMatch != null) {
+                        header.timeScale = parseInt((tsMatch as TSRegExpMatchResult).groups.ts);
                     }
-                    break;
+                }
+                break;
             }
         }
 

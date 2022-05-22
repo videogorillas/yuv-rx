@@ -43,7 +43,7 @@ export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStream
             } else {
                 subscriber.error(`FFMpeg exited with exit code ${code}, signal ${signal}`);
             }
-        })
+        });
         child.stdout.on('data', data => subscriber.next(data));
         child.stderr.on('data', console.error);
     });
