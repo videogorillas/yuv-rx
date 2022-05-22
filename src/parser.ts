@@ -53,14 +53,17 @@ export class YuvParser {
                             header = Y4MHeader.fromString(headerString);
                         } else if (frameHeader == null) {
                             frameHeader = chunk.toString('ascii');
-                        } else {
-                            const frameData = chunk.subarray(0, header.getFrameSize());
                             if (this.options.verbose) {
                                 console.log(`Frame ${fn} header: ${frameHeader}`)
                             }
+                        } else {
+                            const frameData = chunk.subarray(0, header.getFrameSize());
                             subscriber.next(YuvParser.parseFrame(frameData, header, frameHeader, fn));
                             fn += 1;
                             frameHeader = chunk.subarray(header.getFrameSize()).toString('ascii');
+                            if (this.options.verbose) {
+                                console.log(`Frame ${fn} header: ${frameHeader}`)
+                            }
                         }
                     }
                 },
