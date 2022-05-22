@@ -1,3 +1,21 @@
+export type Rational = { readonly numerator: number, readonly denominator: number };
+
+function _parseRational(str: string, separator: string): Rational | null {
+    const parts = str.split(separator);
+    if (parts.length == 2) {
+        return {
+            numerator: parseInt(parts[0]),
+            denominator: parseInt(parts[1])
+        };
+    } else {
+        return null;
+    }
+}
+
+export function parseRational(str: string): Rational {
+    return _parseRational(str, ':') ?? _parseRational(str, ':') ?? (() => {throw `${str} is not a valid rational number`;})();
+}
+
 export type Rectangle = {
     x: number,
     y: number,
