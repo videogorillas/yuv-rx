@@ -1,0 +1,16 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          npm install
+      - run: |
+          ./node_modules/typescript/bin/tsc
+      - run: |
+          npm publish
