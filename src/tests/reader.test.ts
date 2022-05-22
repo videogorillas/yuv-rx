@@ -1,9 +1,10 @@
 import {yuv4mpegStream} from '../reader';
 import {toArray, map} from 'rxjs';
+import {path as ffmpegPath} from '@ffmpeg-installer/ffmpeg';
 
 it('reads a video', done => {
     let tested = false;
-    yuv4mpegStream('ffmpeg', `${__dirname}/resources/colors.mp4`).pipe(
+    yuv4mpegStream(ffmpegPath, `${__dirname}/resources/colors.mp4`).pipe(
         toArray(),
         map(buffers => Buffer.concat(buffers))
     ).subscribe({
