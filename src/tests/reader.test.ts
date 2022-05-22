@@ -13,10 +13,6 @@ it('reads a video', done => {
             const header = chunks[0].toString();
             expect(header.slice(0, 10)).toStrictEqual('YUV4MPEG2 ');
             expect(buffer.length).toStrictEqual(header.length + 1 + 6 * (5 + 1 + 384));
-            // const frames = chunks.slice(2);
-            // frames.slice(0, -1).forEach(frame => {
-            //     expect(frame.slice(-5)).toBe('FRAME');
-            // });
             const frames = [];
             for (let i = 0; i < 6; i++) {
                 const start = header.length + 1 + i * 390;
