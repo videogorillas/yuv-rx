@@ -100,3 +100,20 @@ export class Gray implements ColorPlane {
         }
     }
 }
+
+export interface FrameHeader {
+    fn: number
+}
+
+export interface Frame {
+    header: FrameHeader,
+    colorPlanes: {[key: string]: ColorPlane}
+}
+
+export interface YuvFrame extends Frame {
+    colorPlanes: {
+        y: ColorPlane,
+        u: ColorPlane,
+        v: ColorPlane
+    }
+}

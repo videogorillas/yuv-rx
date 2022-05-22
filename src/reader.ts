@@ -3,14 +3,17 @@ import {Observable} from 'rxjs';
 
 export type PixFmt = 'yuv420p' | 'yuv422p'
 
-export type Options = {
+type Y4MOptions = {
     pixFmt?: PixFmt,
     seekSeconds?: number,
-    vframes?: number,
+    vframes?: number
+}
+
+export type Y4MStreamOptions = Y4MOptions & {
     verbose?: boolean
 }
 
-function yuv4mpeg(path: string, options?: Options): string[] {
+function yuv4mpeg(path: string, options?: Y4MOptions): string[] {
     const params = ['-flags2', '+showall'];
     const seekseconds = options?.seekSeconds ?? 0;
     if (seekseconds > 0) {
@@ -26,7 +29,7 @@ function yuv4mpeg(path: string, options?: Options): string[] {
     return params;
 }
 
-export function yuv4mpegStream(ffmpeg: string, path: string, options?: Options): Observable<Buffer> {
+export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStreamOptions): Observable<Buffer> {
     return new Observable<Buffer>(subscriber => {
         const args = yuv4mpeg(path, options);
         if (options?.verbose) {
