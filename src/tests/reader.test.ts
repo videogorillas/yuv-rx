@@ -3,7 +3,7 @@ import {toArray, map} from 'rxjs';
 
 it('reads a video', done => {
     let tested = false;
-    yuv4mpegStream('/usr/local/bin/ffmpeg', `${__dirname}/resources/colors.mp4`).pipe(
+    yuv4mpegStream('ffmpeg', `${__dirname}/resources/colors.mp4`).pipe(
         toArray(),
         map(buffers => Buffer.concat(buffers))
     ).subscribe({
