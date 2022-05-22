@@ -1,6 +1,6 @@
 {
   "name": "yuv-rx",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Reading videos as Rx Observables of decoded frames",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,6 +20,7 @@
     "test": "jest"
   },
   "devDependencies": {
+    "@ffmpeg-installer/ffmpeg": "1.1.0",
     "@types/jest": "^27.5.1",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "eslint": "^8.8.0",

@@ -1,1 +1,2 @@
-export {ColorPlane, Rectangle, Dimension, Gray} from './frame';
+export {ColorPlane, Rectangle, Dimension, Frame, FrameHeader, YuvFrame, Rational} from './frame';
+export {YuvParser, YuvParserOptions} from './parser';

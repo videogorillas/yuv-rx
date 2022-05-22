@@ -1,3 +1,21 @@
+export type Rational = { readonly numerator: number, readonly denominator: number };
+
+function _parseRational(str: string, separator: string): Rational | null {
+    const parts = str.split(separator);
+    if (parts.length == 2) {
+        return {
+            numerator: parseInt(parts[0]),
+            denominator: parseInt(parts[1])
+        };
+    } else {
+        return null;
+    }
+}
+
+export function parseRational(str: string): Rational {
+    return _parseRational(str, ':') ?? _parseRational(str, ':') ?? (() => {throw `${str} is not a valid rational number`;})();
+}
+
 export type Rectangle = {
     x: number,
     y: number,
@@ -80,5 +98,22 @@ export class Gray implements ColorPlane {
             }
             return new Gray(r.width, r.height, dest);
         }
+    }
+}
+
+export interface FrameHeader {
+    fn: number
+}
+
+export interface Frame {
+    header: FrameHeader,
+    colorPlanes: {[key: string]: ColorPlane}
+}
+
+export interface YuvFrame extends Frame {
+    colorPlanes: {
+        y: ColorPlane,
+        u: ColorPlane,
+        v: ColorPlane
     }
 }
