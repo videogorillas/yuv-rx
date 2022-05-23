@@ -15,7 +15,9 @@ function parseFrame(data: Buffer, header: Y4MHeader, frameHeader: string, fn: nu
     const chroma = header.chromaSize();
     return {
         header: {
-            fn: fn
+            fn: fn,
+            width: header.width,
+            height: header.height
         },
         colorPlanes: {
             y: new Gray(header.width, header.height, data.subarray(0, luma)),

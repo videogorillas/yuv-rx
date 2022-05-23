@@ -36,12 +36,21 @@ export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStream
             console.log('FFMpeg:', ffmpeg);
             console.log('Arguments:', args.join(' '));
         }
+        let exited = false;
         const child = spawn(ffmpeg, args, {stdio: 'pipe'});
         child.on('exit', (code?: number, signal?: NodeJS.Signals) => {
+            exited = true;
             if (code != null && code == 0) {
-                subscriber.complete();
+                if (child.stdout.readableEnded) {
+                    subscriber.complete();
+                }
             } else {
                 subscriber.error(`FFMpeg exited with exit code ${code}, signal ${signal}`);
+            }
+        });
+        child.stdout.on('end', () => {
+            if (exited) {
+                subscriber.complete();
             }
         });
         child.stdout.on('data', data => subscriber.next(data));
