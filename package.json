@@ -1,6 +1,6 @@
 {
   "name": "yuv-rx",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Reading videos as Rx Observables of decoded frames",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,6 +14,14 @@
     "name": "Andrii Iakovenko",
     "email": "andrew.yakovenko@gmail.com"
   },
+  "keywords": [
+    "video",
+    "image",
+    "video decoder",
+    "ffmpeg",
+    "yuv",
+    "video processing"
+  ],
   "license": "MIT",
   "scripts": {
     "lint": "eslint --ext .ts,.tsx .",
@@ -29,6 +37,6 @@
     "typescript": "~4.5.4"
   },
   "dependencies": {
-    "rxjs": "^7.5.4"
+    "rxjs": "7.5.5"
   }
 }
