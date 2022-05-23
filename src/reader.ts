@@ -6,7 +6,9 @@ export type PixFmt = 'yuv420p' | 'yuv422p'
 type Y4MOptions = {
     pixFmt?: PixFmt,
     seekSeconds?: number,
-    vframes?: number
+    vframes?: number,
+    probeSize?: number,
+    analyzeDuration?: number
 }
 
 export type Y4MStreamOptions = Y4MOptions & {
@@ -14,7 +16,16 @@ export type Y4MStreamOptions = Y4MOptions & {
 }
 
 function yuv4mpeg(path: string, options?: Y4MOptions): string[] {
-    const params = ['-flags2', '+showall'];
+    const params = [];
+    const analyzeDuration = options?.analyzeDuration ?? 0;
+    if (analyzeDuration != 0) {
+        params.push('-analyzeduration', analyzeDuration.toString());
+    }
+    const probeSize = options?.probeSize ?? 0;
+    if (probeSize != 0) {
+        params.push('-probesize', probeSize.toString());
+    }
+    params.push('-flags2', '+showall');
     const seekseconds = options?.seekSeconds ?? 0;
     if (seekseconds > 0) {
         params.push('-ss', seekseconds.toString());
@@ -54,6 +65,6 @@ export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStream
             }
         });
         child.stdout.on('data', data => subscriber.next(data));
-        child.stderr.on('data', console.error);
+        child.stderr.on('data', err => console.error(err.toString()));
     });
 }
