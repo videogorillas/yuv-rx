@@ -8,9 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: |
+      - name: Download dependencies
+        run: |
           npm install
-      - run: |
+      - name: Compile TypeScript
+        run: |
           ./node_modules/typescript/bin/tsc
       - name: Publish to npm
         run: |

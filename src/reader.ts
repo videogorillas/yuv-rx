@@ -51,6 +51,9 @@ export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStream
         const child = spawn(ffmpeg, args, {stdio: 'pipe'});
         child.on('exit', (code?: number, signal?: NodeJS.Signals) => {
             exited = true;
+            if (options?.verbose) {
+                console.log(`FFMpeg exited with code ${code}, signal ${signal}`);
+            }
             if (code != null && code == 0) {
                 if (child.stdout.readableEnded) {
                     subscriber.complete();
@@ -60,6 +63,9 @@ export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStream
             }
         });
         child.stdout.on('end', () => {
+            if (options?.verbose) {
+                console.log('Output stream ended');
+            }
             if (exited) {
                 subscriber.complete();
             }
