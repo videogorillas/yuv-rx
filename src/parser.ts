@@ -35,13 +35,14 @@ export class YuvParser {
     }
 
 
-    public read(path: string): Observable<YuvFrame> {
+    public read(path: string, options?: Y4MStreamOptions): Observable<YuvFrame> {
         return new Observable<YuvFrame>(subscriber => {
             let buffer = Buffer.allocUnsafe(0);
             let header: Y4MHeader = null;
             let frameHeader: string = null;
             let fn = 0;
-            yuv4mpegStream(this.options.ffmpeg ?? 'ffmpeg', path, this.options).subscribe({
+            const mergedOptions = {...this.options, ...(options ?? {})};
+            yuv4mpegStream(mergedOptions.ffmpeg ?? 'ffmpeg', path, mergedOptions).subscribe({
                 next: data => {
                     buffer = Buffer.concat([buffer, data]);
                     let idx = -1;
