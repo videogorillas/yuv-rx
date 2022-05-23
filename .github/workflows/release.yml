@@ -12,10 +12,13 @@ jobs:
           npm install
       - run: |
           ./node_modules/typescript/bin/tsc
-      - run: |
+      - name: Publish to npm
+        run: |
+          echo registry=https://registry.npmjs.org/ >> .npmrc
           echo _auth=${{ secrets.NPM_TOKEN }} >> .npmrc
           echo email=andrew.yakovenko@videogorillas.com >> .npmrc
           echo always-auth=true >> .npmrc
+          npm config set registry https://registry.npmjs.org/
           npm publish
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
