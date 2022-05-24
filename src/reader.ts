@@ -65,7 +65,12 @@ export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStream
                 subscriber.complete();
             }
         });
-        child.stdout.on('data', data => subscriber.next(data));
+        child.stdout.on('data', data => {
+            if (options?.verbose) {
+                console.log(`Received data (${data.length} bytes)`);
+            }
+            subscriber.next(data);
+        });
         child.stderr.on('data', err => console.error(err.toString()));
     });
 }

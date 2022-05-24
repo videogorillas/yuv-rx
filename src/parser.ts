@@ -27,6 +27,8 @@ function parseFrame(data: Buffer, header: Y4MHeader, frameHeader: string, fn: nu
     };
 }
 
+type Y4MParserState = 'reading header' | 'reading frame header' | 'reading frame';
+
 export class YuvParser {
     private readonly options: YuvParserOptions;
 
@@ -34,9 +36,43 @@ export class YuvParser {
         this.options = options ?? {};
     }
 
+    private parseHeader(chunk: Buffer): Y4MHeader {
+        const headerString = chunk.toString('ascii');
+        if (this.options.verbose) {
+            console.log(`Video header: ${headerString} (${chunk})`);
+        }
+        return  Y4MHeader.fromString(headerString);
+    }
+
+    private nextChunk(buffer: Buffer, state: Y4MParserState, frameSize?: number): Buffer | null {
+        switch(state) {
+        case 'reading header':
+        case 'reading frame header':
+            const idx = buffer.indexOf('\n', 0, 'ascii');
+            return idx != -1 ? buffer.subarray(0, idx + 1) : null;
+        case 'reading frame':
+            if (frameSize == null) {
+                throw new Error('Illegal Y4M parser state: frame size should be known by now');
+            } else {
+                return buffer.length >= frameSize ? buffer.subarray(0, frameSize) : null;
+            }
+        }
+    }
+
+    private nextState(state: Y4MParserState): Y4MParserState {
+        switch(state) {
+        case 'reading header':
+            return 'reading frame header';
+        case 'reading frame header':
+            return 'reading frame';
+        case 'reading frame':
+            return 'reading frame header';
+        }
+    }
 
     public read(path: string, options?: Y4MStreamOptions): Observable<YuvFrame> {
         return new Observable<YuvFrame>(subscriber => {
+            let state: Y4MParserState = 'reading header';
             let buffer = Buffer.allocUnsafe(0);
             let header: Y4MHeader = null;
             let frameHeader: string = null;
@@ -45,39 +81,36 @@ export class YuvParser {
             yuv4mpegStream(mergedOptions.ffmpeg ?? 'ffmpeg', path, mergedOptions).subscribe({
                 next: data => {
                     buffer = Buffer.concat([buffer, data]);
-                    let idx = -1;
-                    while ((idx = buffer.indexOf('\n', 0, 'ascii')) != -1) {
-                        const chunk = buffer.subarray(0, idx);
-                        buffer = buffer.subarray(idx + 1);
-                        if (header == null) {
-                            const headerString = chunk.toString('ascii');
-                            if (this.options.verbose) {
-                                console.log(`Video header: ${headerString}`);
-                            }
-                            header = Y4MHeader.fromString(headerString);
-                        } else if (frameHeader == null) {
-                            frameHeader = chunk.toString('ascii');
+                    let chunk = null;
+
+                    while ((chunk = this.nextChunk(buffer, state, header?.getFrameSize())) != null) {
+                        buffer = buffer.subarray(chunk.length);
+                        switch (state) {
+                        case 'reading header':
+                            header = this.parseHeader(chunk.subarray(0, -1));
+                            break;
+                        case 'reading frame header':
+                            frameHeader = chunk.subarray(0, -1).toString('ascii');
                             if (this.options.verbose) {
                                 console.log(`Frame ${fn} header: ${frameHeader}`);
                             }
-                        } else {
-                            const frameData = chunk.subarray(0, header.getFrameSize());
-                            subscriber.next(parseFrame(frameData, header, frameHeader, fn));
+                            break;
+                        case 'reading frame':
+                            subscriber.next(parseFrame(chunk, header, frameHeader, fn));
                             fn += 1;
-                            frameHeader = chunk.subarray(header.getFrameSize()).toString('ascii');
-                            if (this.options.verbose) {
-                                console.log(`Frame ${fn} header: ${frameHeader}`);
-                            }
+                            break;
                         }
+                        state = this.nextState(state);
                     }
                 },
                 error: subscriber.error,
                 complete: () => {
-                    if (buffer.length == header.getFrameSize()) {
-                        subscriber.next(parseFrame(buffer, header, frameHeader, fn));
-                        subscriber.complete();
+                    if (buffer.length != 0) {
+                        subscriber.error(`Unparsed ${buffer.length} bytes in the end of the stream`);
+                    } else if (state == 'reading frame') {
+                        subscriber.error('Parser finished while expecting frame data');
                     } else {
-                        subscriber.error(`Incorrect size of last frame (${buffer.length}), expected ${header.getFrameSize()}`);
+                        subscriber.complete();
                     }
                 }
             });
