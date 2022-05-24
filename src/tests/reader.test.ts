@@ -10,7 +10,6 @@ it('reads a video', done => {
     ).subscribe({
         next: buffer => {
             const chunks = buffer.toString('ascii').split('\n');
-            expect(chunks.length).toStrictEqual(8); // header + 6 frames + split at first frame header
             const header = chunks[0];
             expect(header.slice(0, 10)).toStrictEqual('YUV4MPEG2 ');
             expect(buffer.length).toStrictEqual(header.length + 1 + 6 * (5 + 1 + 384));
@@ -60,7 +59,7 @@ it('reads a video', done => {
 it('reads a MPEG-DASH chunk', done => {
     let tested = false;
     const basename = `${__dirname}/resources/stream`;
-    const input = `concat:${basename}-2.0.m4s|${basename}-2.2.m4s`
+    const input = `concat:${basename}-2.0.m4s|${basename}-2.2.m4s`;
     yuv4mpegStream(ffmpegPath, input, {
         seekSeconds: 1,
         vframes: 3,
