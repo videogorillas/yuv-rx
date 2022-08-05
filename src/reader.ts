@@ -7,7 +7,8 @@ type Y4MOptions = {
     pixFmt?: PixFmt,
     seekSeconds?: number,
     vframes?: number,
-    videoStream?: number
+    videoStream?: number,
+    iFramesOnly?: boolean
 }
 
 export type Y4MStreamOptions = Y4MOptions & {
@@ -20,6 +21,9 @@ function yuv4mpeg(path: string, options?: Y4MOptions): string[] {
     const seekseconds = options?.seekSeconds ?? 0;
     if (seekseconds > 0) {
         params.push('-ss', seekseconds.toString());
+    }
+    if (options?.iFramesOnly) {
+        params.push('-skip_frame', 'nokey');
     }
     params.push('-i', path);
     const vstream = options?.videoStream;
