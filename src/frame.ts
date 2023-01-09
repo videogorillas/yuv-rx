@@ -34,6 +34,7 @@ export interface ColorPlane {
     getBounds(): Rectangle;
     readonly data: Buffer;
     getDimension(): Dimension;
+    getSubimage(r: Rectangle, dest?: Buffer): ThisType<this>;
 }
 
 export class Gray implements ColorPlane {
