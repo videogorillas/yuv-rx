@@ -34,7 +34,7 @@ export interface ColorPlane {
     getBounds(): Rectangle;
     readonly data: Buffer;
     getDimension(): Dimension;
-    getSubimage(r: Rectangle, dest?: Buffer): ColorPlane;
+    getSubimage(r: Rectangle, dest?: Buffer): this;
 }
 
 export class Gray implements ColorPlane {
@@ -76,9 +76,9 @@ export class Gray implements ColorPlane {
         return {width: this.width, height: this.height};
     }
 
-    public getSubimage(r: Rectangle, dest?: Buffer): Gray {
+    public getSubimage(this: Gray, r: Rectangle, dest?: Buffer): this {
         if (r == this.getBounds()) {
-            return this;
+            return this as this;
         } else {
             dest = dest ?? Buffer.allocUnsafe(r.width * r.height);
             if (dest.length < r.width * r.height) {
@@ -92,7 +92,7 @@ export class Gray implements ColorPlane {
                 dest.fill(this.data.subarray(offset, offset + r.width), i * r.width, (i + 1) * r.width);
                 offset += this.width;
             }
-            return new Gray(r.width, r.height, dest);
+            return new Gray(r.width, r.height, dest) as this;
         }
     }
 }
@@ -150,9 +150,9 @@ export class InterleavedPlane implements ColorPlane {
         return {width: this.width, height: this.height};
     }
 
-    public getSubimage(r: Rectangle, dest?: Buffer): InterleavedPlane {
+    public getSubimage(this: InterleavedPlane, r: Rectangle, dest?: Buffer): this {
         if (r == this.getBounds()) {
-            return this;
+            return this as this;
         } else {
             const comps = this.colorComponents.length;
             dest = dest ?? Buffer.allocUnsafe(r.width * r.height * comps);
@@ -167,7 +167,7 @@ export class InterleavedPlane implements ColorPlane {
                 dest.fill(this.data.subarray(offset, offset + r.width * comps), i * r.width * comps, (i + 1) * r.width * comps);
                 offset += this.stride;
             }
-            return new InterleavedPlane(r.width, r.height, this.colorComponents, dest);
+            return new InterleavedPlane(r.width, r.height, this.colorComponents, dest) as this;
         }
     }
 }
