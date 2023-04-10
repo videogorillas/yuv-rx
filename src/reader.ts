@@ -42,6 +42,7 @@ function yuv4mpeg(path: string, options?: Y4MOptions): string[] {
     return params;
 }
 
+/* eslint-disable */
 function logHandlerFn(logHandlerConfig: FfmpegLogHandler): (log: any) => void {
     switch (logHandlerConfig) {
         case 'none': return () => {};
@@ -50,6 +51,7 @@ function logHandlerFn(logHandlerConfig: FfmpegLogHandler): (log: any) => void {
         default: return logHandlerConfig;
     }
 }
+/* eslint-enable */
 
 export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStreamOptions): Observable<Buffer> {
     return new Observable<Buffer>(subscriber => {
