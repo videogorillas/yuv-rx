@@ -6,7 +6,7 @@ it('reads a video', async () => {
     const buffer = await lastValueFrom(yuv4mpegStream(ffmpegPath, `${__dirname}/resources/colors.mp4`).pipe(
         toArray(),
         map(buffers => Buffer.concat(buffers))
-    ))
+    ));
     if (buffer.length === 0) {
         throw 'completed without emitting data';
     }
@@ -53,7 +53,7 @@ it('reads a MPEG-DASH chunk', async () => {
     }).pipe(
         toArray(),
         map(buffers => Buffer.concat(buffers))
-    ))
+    ));
     if (buffer.length === 0) {
         throw 'completed without emitting data';
     }
