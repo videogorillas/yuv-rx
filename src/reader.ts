@@ -3,6 +3,8 @@ import {Observable} from 'rxjs';
 
 export type PixFmt = 'yuv420p' | 'yuv422p'
 
+type FfmpegLogHandler = 'none' | 'stdout' | 'stderr' | ((log: string) => void);
+
 type Y4MOptions = {
     pixFmt?: PixFmt,
     seekSeconds?: number,
@@ -12,6 +14,7 @@ type Y4MOptions = {
 }
 
 export type Y4MStreamOptions = Y4MOptions & {
+    ffmpegLogHandler?: FfmpegLogHandler,
     verbose?: boolean
 }
 
@@ -39,6 +42,15 @@ function yuv4mpeg(path: string, options?: Y4MOptions): string[] {
     return params;
 }
 
+function logHandlerFn(logHandlerConfig: FfmpegLogHandler): (log: any) => void {
+    switch (logHandlerConfig) {
+        case 'none': return () => {};
+        case 'stdout': return log => console.log(log.toString());
+        case 'stderr': return log => console.error(log.toString());
+        default: return logHandlerConfig;
+    }
+}
+
 export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStreamOptions): Observable<Buffer> {
     return new Observable<Buffer>(subscriber => {
         const args = yuv4mpeg(path, options);
@@ -46,6 +58,7 @@ export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStream
             console.log('FFMpeg:', ffmpeg);
             console.log('Arguments:', args.join(' '));
         }
+        const handleFfmpegLog = logHandlerFn(options?.ffmpegLogHandler ?? 'none');
         let exited = false;
         const child = spawn(ffmpeg, args, {stdio: 'pipe'});
         child.on('exit', (code?: number, signal?: NodeJS.Signals) => {
@@ -75,6 +88,6 @@ export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStream
             }
             subscriber.next(data);
         });
-        child.stderr.on('data', err => console.error(err.toString()));
+        child.stderr.on('data', handleFfmpegLog);
     });
 }
