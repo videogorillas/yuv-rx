@@ -204,3 +204,9 @@ export interface InterleavedRgbFrame extends Frame {
         rgb: ColorPlane
     }
 }
+
+export interface InterleavedRgbaFrame extends Frame {
+    colorPlanes: {
+        rgba: ColorPlane
+    }
+}

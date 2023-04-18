@@ -1,4 +1,4 @@
-import {Frame, Gray, InterleavedPlane, InterleavedRgbFrame, RgbFrame, YuvFrame} from './frame';
+import {Frame, Gray, InterleavedPlane, InterleavedRgbaFrame, InterleavedRgbFrame, RgbFrame, YuvFrame} from './frame';
 
 function clip(n: number, low: number, high: number): number {
     return n < low ? low : (n > high ? high : n);
@@ -92,4 +92,22 @@ export function toRGBInterleaved(yuv: YuvFrame): InterleavedRgbFrame {
             dst.colorPlanes.rgb.data, offLuma * 3, dst.colorPlanes.rgb.data, offLuma * 3 + 1, dst.colorPlanes.rgb.data, offLuma * 3 + 2);
     });
     return rgb;
+}
+
+export function toRGBAInterleaved(yuv: YuvFrame): InterleavedRgbaFrame {
+    const w = yuv.header.width;
+    const h = yuv.header.height;
+    const rgba = {
+        header: yuv.header,
+        colorPlanes: {
+            rgba: new InterleavedPlane(w, h, ['r', 'g', 'b', 'a']),
+        }
+    };
+    yuv420pToRgb(yuv, rgba, (src, dst, offLuma, offChroma) => {
+        yuvToRgb(src.colorPlanes.y.data, offLuma, src.colorPlanes.u.data, offChroma, src.colorPlanes.v.data, offChroma,
+            dst.colorPlanes.rgba.data, offLuma * 4, dst.colorPlanes.rgba.data, offLuma * 4 + 1, dst.colorPlanes.rgba.data, offLuma * 4 + 2);
+        dst.colorPlanes.rgba.data[offLuma * 4 + 3] = 0xff;
+
+    });
+    return rgba;
 }
