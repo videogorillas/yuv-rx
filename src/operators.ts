@@ -29,7 +29,7 @@ export function scaleBilinear(w: number, h?: number): (frame: YuvFrame) => YuvFr
                     u: scaleGrayBilinear(w2, h2, frame.colorPlanes.u as Gray),
                     v: scaleGrayBilinear(w2, h2, frame.colorPlanes.v as Gray),
                 }
-            }
+            };
         }
     };
 }
