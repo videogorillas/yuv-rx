@@ -1,7 +1,7 @@
 import {path as ffmpegPath} from '@ffmpeg-installer/ffmpeg';
 import {YuvParser} from '../parser';
 import {lastValueFrom, map, toArray} from 'rxjs';
-import {toRGB, toRGBInterleaved} from '../color';
+import {toRGB, toRGBAInterleaved, toRGBInterleaved} from '../color';
 
 function buffersDiff(b1: Buffer, b2: Buffer, ignoreThreshold?: number) {
     const threshold = ignoreThreshold ?? 0;
@@ -68,4 +68,20 @@ it('converts yuv to interleaved rgb', async () => {
     expect(buffersDiff(Buffer.alloc(256 * 3, Buffer.from([0, 0xff, 0])), frames[3].colorPlanes.rgb.data, 1)).toStrictEqual([]);
     expect(buffersDiff(Buffer.alloc(256 * 3, Buffer.from([0, 0, 0xff])), frames[4].colorPlanes.rgb.data, 1)).toStrictEqual([]);
     expect(buffersDiff(Buffer.alloc(256 * 3, Buffer.from([0x42, 0x19, 0x84])), frames[5].colorPlanes.rgb.data, 1)).toStrictEqual([]);
+});
+
+it('converts yuv to interleaved rgba', async () => {
+    const frames = await lastValueFrom(new YuvParser({
+        ffmpeg: ffmpegPath
+    }).read(`${__dirname}/resources/colors.mp4`).pipe(
+        map(toRGBAInterleaved),
+        toArray()
+    ));
+    expect(frames.length).toStrictEqual(6);
+    expect(buffersDiff(Buffer.alloc(256 * 4, Buffer.from([0, 0, 0, 0xff])), frames[0].colorPlanes.rgba.data, 1)).toStrictEqual([]);
+    expect(buffersDiff(Buffer.alloc(256 * 4, Buffer.from([0xff, 0xff, 0xff, 0xff])), frames[1].colorPlanes.rgba.data, 1)).toStrictEqual([]);
+    expect(buffersDiff(Buffer.alloc(256 * 4, Buffer.from([0xff, 0, 0, 0xff])), frames[2].colorPlanes.rgba.data, 1)).toStrictEqual([]);
+    expect(buffersDiff(Buffer.alloc(256 * 4, Buffer.from([0, 0xff, 0, 0xff])), frames[3].colorPlanes.rgba.data, 1)).toStrictEqual([]);
+    expect(buffersDiff(Buffer.alloc(256 * 4, Buffer.from([0, 0, 0xff, 0xff])), frames[4].colorPlanes.rgba.data, 1)).toStrictEqual([]);
+    expect(buffersDiff(Buffer.alloc(256 * 4, Buffer.from([0x42, 0x19, 0x84, 0xff])), frames[5].colorPlanes.rgba.data, 1)).toStrictEqual([]);
 });
