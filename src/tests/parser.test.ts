@@ -33,3 +33,28 @@ it('parses MPEG-DASH into frames', async () => {
     }).pipe(toArray()));
     expect(frames.length).toStrictEqual(3);
 });
+
+it('reads video difference from custom ffmpeg video filter', async () => {
+    const basename = `${__dirname}/resources`;
+    const input1 = `${basename}/mouse.mp4`;
+    const input2 = `${basename}/mouse_text.mp4`;
+    const frames = await lastValueFrom(new YuvParser({
+        ffmpeg: ffmpegPath,
+        verbose: true
+    }).readCustom([
+        '-i',
+        input1,
+        '-i',
+        input2,
+        '-filter_complex',
+        '[0:v]format=gray[2];[1:v]format=gray[3];[2][3]blend=all_mode=difference[d];[d]format=yuv420p[v]',
+        '-map',
+        '[v]',
+    ]).pipe(toArray()));
+    expect(frames[0].colorPlanes.y.data.readUInt8(54*720+170)).toBeGreaterThan(42);
+    expect(frames[10].colorPlanes.y.data.readUInt8(54*720+170)).toBeGreaterThan(42);
+    expect(frames[42].colorPlanes.y.data.readUInt8(54*720+170)).toBeGreaterThan(42);
+    expect(frames[0].colorPlanes.y.data.readUInt8(154*720+170)).toBeLessThan(20);
+    expect(frames[10].colorPlanes.y.data.readUInt8(154*720+170)).toBeLessThan(20);
+    expect(frames[42].colorPlanes.y.data.readUInt8(154*720+170)).toBeLessThan(20);
+});

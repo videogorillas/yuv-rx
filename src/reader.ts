@@ -18,7 +18,7 @@ export type Y4MStreamOptions = Y4MOptions & {
     verbose?: boolean
 }
 
-function yuv4mpeg(path: string, options?: Y4MOptions): string[] {
+function inputArgs(path: string, options?: Y4MOptions): string[] {
     const params = [];
     params.push('-flags2', '+showall');
     const seekseconds = options?.seekSeconds ?? 0;
@@ -37,9 +37,15 @@ function yuv4mpeg(path: string, options?: Y4MOptions): string[] {
     if (vframes != null) {
         params.push('-vframes', vframes.toString());
     }
-    const pixFmt = options?.pixFmt ?? 'yuv420p';
-    params.push('-loglevel', 'error', '-f', 'yuv4mpegpipe', '-pix_fmt', pixFmt, '-strict', '-1', '-threads', '0', '-');
     return params;
+}
+
+function outputArgs(pixFmt?: PixFmt): string[] {
+    return ['-loglevel', 'error', '-f', 'yuv4mpegpipe', '-pix_fmt', pixFmt ?? 'yuv420p', '-strict', '-1', '-threads', '0', '-'];
+}
+
+function yuv4mpeg(path: string, options?: Y4MOptions): string[] {
+    return [...inputArgs(path, options), ...outputArgs(options?.pixFmt)];
 }
 
 /* eslint-disable */
@@ -53,9 +59,8 @@ function logHandlerFn(logHandlerConfig: FfmpegLogHandler): (log: any) => void {
 }
 /* eslint-enable */
 
-export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStreamOptions): Observable<Buffer> {
+function yuv4mpegStream(ffmpeg: string, args: string[], options?: Y4MStreamOptions): Observable<Buffer> {
     return new Observable<Buffer>(subscriber => {
-        const args = yuv4mpeg(path, options);
         if (options?.verbose) {
             console.log('FFMpeg:', ffmpeg);
             console.log('Arguments:', args.join(' '));
@@ -92,4 +97,13 @@ export function yuv4mpegStream(ffmpeg: string, path: string, options?: Y4MStream
         });
         child.stderr.on('data', handleFfmpegLog);
     });
+
+}
+
+export function yuv4mpegStreamForCustomInput(ffmpeg: string, args: string[], options?: Y4MStreamOptions): Observable<Buffer> {
+    return yuv4mpegStream(ffmpeg, [...args, ...outputArgs(options?.pixFmt)], options);
+}
+
+export function yuv4mpegStreamForPath(ffmpeg: string, path: string, options?: Y4MStreamOptions): Observable<Buffer> {
+    return yuv4mpegStream(ffmpeg, yuv4mpeg(path, options), options);
 }
