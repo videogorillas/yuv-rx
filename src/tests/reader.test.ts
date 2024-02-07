@@ -1,9 +1,9 @@
-import {yuv4mpegStream} from '../reader';
+import {yuv4mpegStreamForPath} from '../reader';
 import {toArray, map, lastValueFrom} from 'rxjs';
 import {path as ffmpegPath} from '@ffmpeg-installer/ffmpeg';
 
 it('reads a video', async () => {
-    const buffer = await lastValueFrom(yuv4mpegStream(ffmpegPath, `${__dirname}/resources/colors.mp4`).pipe(
+    const buffer = await lastValueFrom(yuv4mpegStreamForPath(ffmpegPath, `${__dirname}/resources/colors.mp4`).pipe(
         toArray(),
         map(buffers => Buffer.concat(buffers))
     ));
@@ -46,7 +46,7 @@ it('reads a MPEG-DASH chunk', async () => {
     const basename = `${__dirname}/resources/stream`;
     const input = `concat:${basename}-2.0.m4s|${basename}-2.2.m4s`;
 
-    const buffer = await lastValueFrom(yuv4mpegStream(ffmpegPath, input, {
+    const buffer = await lastValueFrom(yuv4mpegStreamForPath(ffmpegPath, input, {
         seekSeconds: 1,
         vframes: 3,
         verbose: true

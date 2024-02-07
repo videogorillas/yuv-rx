@@ -33,5 +33,31 @@ yuvParser.read('input.mp4', {
     next: base64frame => console.log(base64frame)
 });
 ```
+Example of usage with custom ffmpeg command line options to find frames with difference at pixel (42,42)
+```typescript
+import {Observable, from, take, map, concatMap} from 'rxjs';
+
+const yuvParser = new YuvParser({
+    ffmpeg: '/usr/local/bin/ffmpeg', // optional path, defaults to 'ffmpeg'
+    verbose: false
+});
+
+yuvParser.readCustom([
+    '-i',
+    'input1.mp4',
+    '-i',
+    'input2.mp4',
+    '-filter_complex',
+    '[0:v]format=gray[2];[1:v]format=gray[3];[2][3]blend=all_mode=difference[d];[d]format=yuv420p[v]',
+    '-map',
+    '[v]',
+]).pipe(
+    filter(diffFrame => diffFrame.colorPlanes.y.data[42*diffFrame.header.width + 42] > 10),
+    map(diffFrame => diffFrame.header.fn),
+    toArray()
+).subscribe({
+    next: frameNumbers => console.log(`Frames with difference at pixel (42,42): ${frameNumbers}`)
+});
+```
 
 © VideoGorillas LLC 2022

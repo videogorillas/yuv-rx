@@ -1,4 +1,4 @@
-import {Y4MStreamOptions, yuv4mpegStream} from './reader';
+import {Y4MStreamOptions, yuv4mpegStreamForCustomInput, yuv4mpegStreamForPath} from './reader';
 import {Observable} from 'rxjs';
 import {Gray, YuvFrame} from './frame';
 import {Y4MHeader} from './y4m';
@@ -70,15 +70,31 @@ export class YuvParser {
         }
     }
 
+    public readCustom(ffmpegArgs: string[], options?: Y4MStreamOptions): Observable<YuvFrame> {
+        return this.readFromStream(() => yuv4mpegStreamForCustomInput(
+            this.options.ffmpeg ?? 'ffmpeg',
+            ffmpegArgs,
+            {...this.options, ...(options ?? {})},
+        ));
+
+    }
+
     public read(path: string, options?: Y4MStreamOptions): Observable<YuvFrame> {
+        return this.readFromStream(() => yuv4mpegStreamForPath(
+            this.options.ffmpeg ?? 'ffmpeg',
+            path,
+            {...this.options, ...(options ?? {})},
+        ));
+    }
+
+    private readFromStream(createStream: () => Observable<Buffer>): Observable<YuvFrame> {
         return new Observable<YuvFrame>(subscriber => {
             let state: Y4MParserState = 'reading header';
             let buffer = Buffer.allocUnsafe(0);
             let header: Y4MHeader = null;
             let frameHeader: string = null;
             let fn = 0;
-            const mergedOptions = {...this.options, ...(options ?? {})};
-            yuv4mpegStream(mergedOptions.ffmpeg ?? 'ffmpeg', path, mergedOptions).subscribe({
+            createStream().subscribe({
                 next: data => {
                     buffer = Buffer.concat([buffer, data]);
                     let chunk = null;
