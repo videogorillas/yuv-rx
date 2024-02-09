@@ -59,7 +59,7 @@ export class YuvWriter {
             let headerWritten = false;
 
             const child = spawn(ffmpeg, ffmpegArgs(outputFile, options), {stdio: 'pipe'});
-            child.on('exit', (code?: number, signal?: NodeJS.Signals) => {
+            child.on('exit', (code?: number) => {
                 if (code !== 0) {
                     reject(new Error(`FFMpeg exited with code ${code}`));
                 } else {
@@ -82,7 +82,7 @@ export class YuvWriter {
                 },
                 error: err => reject(err),
                 complete: () => child.stdin.end(),
-            })
+            });
         });
     }
 }
