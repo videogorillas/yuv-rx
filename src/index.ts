@@ -2,3 +2,4 @@ export {ColorPlane, Rectangle, Dimension, Frame, FrameHeader, YuvFrame, Rational
 export {YuvParser, YuvParserOptions} from './parser';
 export {toRGB, toRGBInterleaved, toRGBAInterleaved} from './color';
 export {scaleBilinear} from './operators';
+export {YuvWriter, YuvWriterOptions, Y4MOutputOptions} from './writer';
