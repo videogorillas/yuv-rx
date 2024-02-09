@@ -1,9 +1,8 @@
 import {spawn} from 'child_process';
 import {Observable} from 'rxjs';
+import {FfmpegLogHandler, logHandlerFn} from './log-handler';
 
 export type PixFmt = 'yuv420p' | 'yuv422p'
-
-type FfmpegLogHandler = 'none' | 'stdout' | 'stderr' | ((log: string) => void);
 
 type Y4MOptions = {
     pixFmt?: PixFmt,
@@ -48,17 +47,6 @@ function yuv4mpeg(path: string, options?: Y4MOptions): string[] {
     return [...inputArgs(path, options), ...outputArgs(options?.pixFmt)];
 }
 
-/* eslint-disable */
-function logHandlerFn(logHandlerConfig: FfmpegLogHandler): (log: any) => void {
-    switch (logHandlerConfig) {
-        case 'none': return () => {};
-        case 'stdout': return log => console.log(log.toString());
-        case 'stderr': return log => console.error(log.toString());
-        default: return logHandlerConfig;
-    }
-}
-/* eslint-enable */
-
 function yuv4mpegStream(ffmpeg: string, args: string[], options?: Y4MStreamOptions): Observable<Buffer> {
     return new Observable<Buffer>(subscriber => {
         if (options?.verbose) {
@@ -68,6 +56,7 @@ function yuv4mpegStream(ffmpeg: string, args: string[], options?: Y4MStreamOptio
         const handleFfmpegLog = logHandlerFn(options?.ffmpegLogHandler ?? 'none');
         let exited = false;
         const child = spawn(ffmpeg, args, {stdio: 'pipe'});
+
         child.on('exit', (code?: number, signal?: NodeJS.Signals) => {
             exited = true;
             if (options?.verbose) {
