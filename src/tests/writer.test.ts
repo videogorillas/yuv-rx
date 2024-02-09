@@ -8,7 +8,7 @@ it('reads a video and writes it back', async () => {
         ffmpeg: ffmpegPath,
     }).read(`${__dirname}/resources/colors.mp4`);
     const writer = new YuvWriter({
-        ffmpeg: '/usr/local/bin/ffmpeg',
+        ffmpeg: ffmpegPath,
     });
     const outputFile = `${__dirname}/resources/colors_out.mp4`;
     const frameCount = await writer.write(framesRx, outputFile, {overwrite: true});
