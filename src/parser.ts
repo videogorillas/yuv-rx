@@ -122,9 +122,9 @@ export class YuvParser {
                 error: subscriber.error,
                 complete: () => {
                     if (buffer.length != 0) {
-                        subscriber.error(`Unparsed ${buffer.length} bytes in the end of the stream`);
+                        subscriber.error(new Error(`Unparsed ${buffer.length} bytes in the end of the stream`));
                     } else if (state == 'reading frame') {
-                        subscriber.error('Parser finished while expecting frame data');
+                        subscriber.error(new Error('Parser finished while expecting frame data'));
                     } else {
                         subscriber.complete();
                     }
