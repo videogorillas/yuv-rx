@@ -60,14 +60,14 @@ function yuv4mpegStream(ffmpeg: string, args: string[], options?: Y4MStreamOptio
         child.on('exit', (code?: number, signal?: NodeJS.Signals) => {
             exited = true;
             if (options?.verbose) {
-                console.log(`FFMpeg exited with code ${code}, signal ${signal}`);
+                console.log(new Error(`FFMpeg exited with code ${code}, signal ${signal}`));
             }
             if (code != null && code == 0) {
                 if (child.stdout.readableEnded) {
                     subscriber.complete();
                 }
             } else {
-                subscriber.error(`FFMpeg exited with exit code ${code}, signal ${signal}`);
+                subscriber.error(new Error(`FFMpeg exited with exit code ${code}, signal ${signal}`));
             }
         });
         child.stdout.on('end', () => {
