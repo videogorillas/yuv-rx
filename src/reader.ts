@@ -85,6 +85,7 @@ function yuv4mpegStream(ffmpeg: string, args: string[], options?: Y4MStreamOptio
             subscriber.next(data);
         });
         child.stderr.on('data', handleFfmpegLog);
+        return () => child.kill();
     });
 
 }
