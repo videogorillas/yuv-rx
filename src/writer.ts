@@ -80,7 +80,10 @@ export class YuvWriter {
                     child.stdin.write(frameToBuffer(frame));
                     framesWritten++;
                 },
-                error: err => reject(err),
+                error: err => {
+                    reject(err);
+                    child.kill();
+                },
                 complete: () => child.stdin.end(),
             });
         });

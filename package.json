@@ -1,6 +1,6 @@
 {
   "name": "yuv-rx",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Reading videos as Rx Observables of decoded frames",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -38,6 +38,6 @@
     "typescript": "~4.9.5"
   },
   "dependencies": {
-    "rxjs": "7.5.5"
+    "rxjs": "7.8.1"
   }
 }
